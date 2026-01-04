@@ -1,0 +1,21 @@
+[project]
+name = "nsfw-index"
+version = "2025.01.05"
+description = "Adult content metadata scrapers for the nsfw-index project"
+readme = "README.md"
+requires-python = ">=3.14"
+license = {text = "MIT"}
+keywords = ["nsfw", "scraper", "adult", "indexing", "metadata"]
+authors = [
+    {name = "Aria Lume", email = "thearialume@gmail.com"}
+]
+dependencies = [
+    "python-dotenv>=1.2.1",
+    "scrapy>=2.13.4",
+    "sqlalchemy>=2.0.45",
+]
+
+[project.urls]
+Homepage = "https://nsfw-index.thearialume.com"
+Repository = "https://github.com/thearialume/nsfw-index"
+Documentation = "https://nsfw-index.thearialume.com/docs"
