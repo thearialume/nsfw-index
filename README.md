@@ -46,8 +46,8 @@ The project is split into modular components. Here is where you can find everyth
 - [x] **Project Setup:** Infrastructure and architecture design.
 - [x] **Digital presence:** Minimal website with project information is live.
 - [x] **Database Schema:** Finalizing first metadata model.
-- [ ] **First Scrapers:** Implementing crawlers for chosen platforms.
-- [ ] **Data Collection:** Initial crawlers run.
+- [x] **First Scrapers:** Implementing crawlers for chosen platforms.
+- [x] **Data Collection:** Initial crawlers run.
 - [ ] **Public API:** Alpha release of the search API.
 - [ ] **Public Release:** First stable release of the dataset.
 - [ ] **Data Normalization:** Writing script to bring tags and other data to a unified format.
