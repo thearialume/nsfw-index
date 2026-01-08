@@ -1,4 +1,7 @@
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 BOT_NAME = "nsfw_index"
 
@@ -8,7 +11,9 @@ NEWSPIDER_MODULE = "nsfw_index.spiders"
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 USER_AGENT = os.getenv("CRAWLER_USER_AGENT")
 if USER_AGENT is None:
-    raise Exception("CRAWLER_USER_AGENT is not set in environment variables: Crawl responsibly by identifying yourself")
+    raise Exception(
+        "CRAWLER_USER_AGENT is not set in environment variables: Crawl responsibly by identifying yourself"
+    )
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
