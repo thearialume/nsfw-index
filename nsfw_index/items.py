@@ -1,8 +1,9 @@
-from scrapy.item import Item, Field
-from typing import Optional, Any
-from urllib.parse import urlparse
 import datetime
 import re
+from typing import Any, Optional
+from urllib.parse import urlparse
+
+from scrapy.item import Field, Item
 
 
 class Video(Item):

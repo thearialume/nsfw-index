@@ -1,6 +1,7 @@
-from .settings import DATABASE_URL
-from .items import Video
 import psycopg
+
+from .items import Video
+from .settings import DATABASE_URL
 
 
 class VideoPipeline:

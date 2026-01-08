@@ -1,7 +1,10 @@
-from scrapy.spiders import CrawlSpider, Rule
-from scrapy.linkextractors import LinkExtractor
-from ..items import Video
 import json
+
+from scrapy.http import Response
+from scrapy.linkextractors import LinkExtractor
+from scrapy.spiders import CrawlSpider, Rule
+
+from ..items import Video
 
 
 class Rule34videoSpider(CrawlSpider):
@@ -19,7 +22,7 @@ class Rule34videoSpider(CrawlSpider):
         Rule(LinkExtractor(allow="/video/"), callback="parse_item"),
     )
 
-    def parse_item(self, response):
+    def parse_item(self, response: Response):
         json_ld_script = response.xpath(
             '//script[@type="application/ld+json"]/text()'
         ).get()
