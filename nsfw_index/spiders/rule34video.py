@@ -36,24 +36,27 @@ class Rule34videoSpider(CrawlSpider):
             .split("(")[1]
             .replace(")", "")
         )
-
-        # Not sure, if rating appearence is persistent, so I'll leave it like this for now
-        try:
-            video["rating"] = int(
-                response.css(".voters.count::text").get().split("%")[0]
+        # Try Except looked too spooky here, so I dediced to replace it!
+        video["rating"] = (
+            int(
+                response.css(".voters.count::text").get().split("%")[0],
             )
-            video["dislikes"] = int(
+            if response.css(".voters.count::text").get().split("%")[0]
+            else 0
+        )
+        video["dislikes"] = (
+            int(
                 round(video.get("likes") / video.get("rating") * 100)
                 - video.get("likes")
             )
-        except:  # noqa: E722
-            pass
+            if video.get("rating") and video.get("likes")
+            else 0
+        )
 
         # Uploader
         video["uploader_url"] = response.xpath(
             '//div[text()="Uploaded by"]/../a/@href'
         ).get()
-
         video["uploader_name"] = (
             response.xpath('string(//div[text()="Uploaded by"]/../a)').get().strip()
         )
@@ -67,6 +70,10 @@ class Rule34videoSpider(CrawlSpider):
         ).getall()
         artists = response.xpath('//div[text()="Artist"]/../a//span/text()').getall()
 
-        video["tags"] = tags + categories + artists
+        # Overlap in tags and categories taken properly now
+        summary = tags + categories + artists
+        summary = set([i.lower().strip() for i in summary])
+
+        video["tags"] = list(summary)
 
         yield video
