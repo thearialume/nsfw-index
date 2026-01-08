@@ -13,12 +13,14 @@ class VideoPipeline:
         create table if not exists videos (
             source_url text primary key,
             domain text not null,
+            content_url text,
             thumbnail_url text,
             uploader_url text,
             uploader_name text,
             title text,
             description text,
             tags text[],
+            tags_n text[],
             duration int,
             views int,
             likes int,
@@ -35,6 +37,7 @@ class VideoPipeline:
         insert into videos (
             source_url,
             domain,
+            content_url,
             thumbnail_url,
             uploader_url,
             uploader_name,
@@ -49,8 +52,9 @@ class VideoPipeline:
             rating,
             upload_date
         ) values (
-            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
         ) on conflict (source_url) do update set
+        content_url = excluded.content_url,
         thumbnail_url = excluded.thumbnail_url,
         uploader_url = excluded.uploader_url,
         uploader_name = excluded.uploader_name,
@@ -71,6 +75,7 @@ class VideoPipeline:
             (
                 item["source_url"],
                 item["domain"],
+                item.get("content_url"),
                 item.get("thumbnail_url"),
                 item.get("uploader_url"),
                 item.get("uploader_name"),

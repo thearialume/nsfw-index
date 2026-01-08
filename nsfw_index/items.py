@@ -22,12 +22,15 @@ class Video(Item):
     domain: str = Field()
 
     # Content metadata (optional)
+    # Extract content_url, only if it's directly provided in schema
+    content_url: Optional[str] = Field(default=None)
     thumbnail_url: Optional[str] = Field(default=None)
     uploader_url: Optional[str] = Field(default=None)
     uploader_name: Optional[str] = Field(default=None)
     title: Optional[str] = Field(default=None)
     description: Optional[str] = Field(default=None)
     tags: list[str] = Field(default_factory=list)
+    tags_n: list[str] = Field(default_factory=list)
     duration: Optional[int] = Field(default=None)
 
     # Engagement metrics (optional)
@@ -101,6 +104,7 @@ class Video(Item):
         item["title"] = schema.get("name")
         item["description"] = schema.get("description")
         item["thumbnail_url"] = schema.get("thumbnailUrl")
+        item["content_url"] = schema.get("contentUrl")
 
         if duration_str := schema.get("duration"):
             item["duration"] = cls._parse_iso_duration(duration_str)

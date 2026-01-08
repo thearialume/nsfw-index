@@ -27,13 +27,13 @@ class Rule34videoSpider(CrawlSpider):
         video = Video.from_schema(data, response.url)
 
         # Metrics
-
         video["comments"] = int(
             response.xpath('//a[@href="#tab_comments"]/text()')
             .get()
             .split("(")[1]
             .replace(")", "")
         )
+
         # Not sure, if rating appearence is persistent, so I'll leave it like this for now
         try:
             video["rating"] = int(
@@ -43,7 +43,7 @@ class Rule34videoSpider(CrawlSpider):
                 round(video.get("likes") / video.get("rating") * 100)
                 - video.get("likes")
             )
-        except: # noqa: E722
+        except:  # noqa: E722
             pass
 
         # Uploader
@@ -62,8 +62,8 @@ class Rule34videoSpider(CrawlSpider):
         categories = response.xpath(
             '//div[text()="Categories"]/../a//span/text()'
         ).getall()
-        artitsts = response.xpath('//div[text()="Artist"]/../a//span/text()').getall()
+        artists = response.xpath('//div[text()="Artist"]/../a//span/text()').getall()
 
-        video["tags"] = tags + categories + artitsts
+        video["tags"] = tags + categories + artists
 
         yield video
