@@ -45,7 +45,7 @@ The project is split into modular components. Here is where you can find everyth
 
 - [x] **Project Setup:** Infrastructure and architecture design.
 - [x] **Digital presence:** Minimal website with project information is live.
-- [ ] **Database Schema:** Finalizing first metadata model.
+- [x] **Database Schema:** Finalizing first metadata model.
 - [ ] **First Scrapers:** Implementing crawlers for chosen platforms.
 - [ ] **Data Collection:** Initial crawlers run.
 - [ ] **Public API:** Alpha release of the search API.
