@@ -2,19 +2,19 @@ import json
 
 from scrapy.http import Response
 from scrapy.linkextractors import LinkExtractor
-from scrapy.spiders import CrawlSpider, Rule
+from .crawlspider import TrackedCrawlSpider, Rule
 
 from ..items import Video
 
 
-class Rule34videoSpider(CrawlSpider):
+class Rule34videoSpider(TrackedCrawlSpider):
     name = "rule34video"
     allowed_domains = ["rule34video.com"]
-    start_urls = ["https://rule34video.com"]
+    start_urls = ["https://rule34video.com/"]
     custom_settings = {
         "ITEM_PIPELINES": {
             "nsfw_index.pipelines.VideoPipeline": 300,
-        }
+        },
     }
 
     rules = (
