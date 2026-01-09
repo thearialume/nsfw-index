@@ -33,7 +33,7 @@ class VideoPipeline:
         """)
 
     # Lots of code, but one query handles both inserts and updates, so it should be screamingly fast! :3
-    def process_item(self, item: Video, spider):
+    def process_item(self, item: Video):
         query = """
         insert into videos (
             source_url,
@@ -96,6 +96,6 @@ class VideoPipeline:
         self.connection.commit()
         return item
 
-    def close_spider(self, spider):
+    def close_spider(self):
         self.cursor.close()
         self.connection.close()
