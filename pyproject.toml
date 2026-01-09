@@ -1,6 +1,6 @@
 [project]
 name = "nsfw-index"
-version = "2025.01.05"
+version = "2025.01.09"
 description = "Adult content metadata scrapers and scripts for the nsfw-index project"
 readme = "README.md"
 requires-python = ">=3.14"
