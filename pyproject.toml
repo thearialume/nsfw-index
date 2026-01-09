@@ -12,7 +12,7 @@ authors = [
 dependencies = [
     "psycopg[binary]>=3.3.2",
     "python-dotenv>=1.2.1",
-    "scrapy>=2.13.4",
+    "scrapy>=2.14.0",
 ]
 
 [project.urls]
