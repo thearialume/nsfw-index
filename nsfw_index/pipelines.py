@@ -1,13 +1,11 @@
-import psycopg
-
+from .db import connection, cursor
 from .items import Video
-from .settings import DATABASE_URL
 
 
 class VideoPipeline:
     def __init__(self):
-        self.connection = psycopg.connect(DATABASE_URL)
-        self.cursor = self.connection.cursor()
+        self.connection = connection
+        self.cursor = cursor
 
         # Create video table if not exists
         self.cursor.execute("""
