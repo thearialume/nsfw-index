@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any, cast
 
 from scrapy.http import Request, Response
@@ -6,6 +7,7 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 
 from ..db import connection, cursor
+
 
 # I know this code might look crazy, but hear me out! XD
 # Since scrapers in this project might be really really long-running
@@ -26,7 +28,8 @@ class TrackedCrawlSpider(CrawlSpider):
         create table if not exists tasks (
             source_url text primary key,
             spider text,
-            status bool
+            status bool,
+            time timestamp
         )
         """)
         self.connection.commit()
@@ -82,14 +85,14 @@ class TrackedCrawlSpider(CrawlSpider):
     def _build_request(self, rule_index: int, link: Link) -> Request:
         existed = self.cursor.execute(
             """
-            insert into tasks (source_url, spider, status)
-            values (%s, %s, %s)
+            insert into tasks (source_url, spider, status, time)
+            values (%s, %s, %s, %s)
             on conflict (source_url) do update
             set status = tasks.status
             where tasks.status = false
             returning source_url;
             """,
-            (link.url, self.name, False),
+            (link.url, self.name, False, datetime.now()),
         ).fetchall()
         self.connection.commit()
 
