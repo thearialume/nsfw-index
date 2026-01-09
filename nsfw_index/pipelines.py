@@ -1,34 +1,33 @@
-from .db import connection, cursor
+from .db import get_connection, get_cursor
 from .items import Video
 
 
 class VideoPipeline:
     def __init__(self):
-        self.connection = connection
-        self.cursor = cursor
-
         # Create video table if not exists
-        self.cursor.execute("""
-        create table if not exists videos (
-            source_url text primary key,
-            domain text not null,
-            content_url text,
-            thumbnail_url text,
-            uploader_url text,
-            uploader_name text,
-            title text,
-            description text,
-            tags text[],
-            tags_n text[],
-            duration int,
-            views int,
-            likes int,
-            dislikes int,
-            comments int,
-            rating int check (rating between 0 and 100),
-            upload_date timestamp
-        )
-        """)
+        with get_cursor() as cursor:
+            cursor.execute("""
+            create table if not exists videos (
+                source_url text primary key,
+                domain text not null,
+                content_url text,
+                thumbnail_url text,
+                uploader_url text,
+                uploader_name text,
+                title text,
+                description text,
+                tags text[],
+                tags_n text[],
+                duration int,
+                views int,
+                likes int,
+                dislikes int,
+                comments int,
+                rating int check (rating between 0 and 100),
+                upload_date timestamp
+            )
+            """)
+        get_connection().commit()
 
     # Lots of code, but one query handles both inserts and updates, so it should be screamingly fast! :3
     def process_item(self, item: Video):
@@ -69,31 +68,32 @@ class VideoPipeline:
         upload_date = excluded.upload_date
         """
 
-        self.connection.execute(
-            query,
-            (
-                item["source_url"],
-                item["domain"],
-                item.get("content_url"),
-                item.get("thumbnail_url"),
-                item.get("uploader_url"),
-                item.get("uploader_name"),
-                item.get("title"),
-                item.get("description"),
-                item.get("tags", []),
-                item.get("duration"),
-                item.get("views"),
-                item.get("likes"),
-                item.get("dislikes"),
-                item.get("comments"),
-                item.get("rating"),
-                item.get("upload_date"),
-            ),
-        )
+        with get_cursor() as cursor:
+            cursor.execute(
+                query,
+                (
+                    item["source_url"],
+                    item["domain"],
+                    item.get("content_url"),
+                    item.get("thumbnail_url"),
+                    item.get("uploader_url"),
+                    item.get("uploader_name"),
+                    item.get("title"),
+                    item.get("description"),
+                    item.get("tags", []),
+                    item.get("duration"),
+                    item.get("views"),
+                    item.get("likes"),
+                    item.get("dislikes"),
+                    item.get("comments"),
+                    item.get("rating"),
+                    item.get("upload_date"),
+                ),
+            )
 
-        self.connection.commit()
+        get_connection().commit()
         return item
 
     def close_spider(self):
-        self.cursor.close()
-        self.connection.close()
+        get_cursor().close()
+        get_connection().close()

@@ -6,7 +6,7 @@ from scrapy.link import Link
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 
-from ..db import connection, cursor
+from ..db import get_connection, get_cursor
 
 
 # I know this code might look crazy, but hear me out! XD
@@ -21,18 +21,17 @@ from ..db import connection, cursor
 class TrackedCrawlSpider(CrawlSpider):
     def __init__(self, *a, **kw):
         super().__init__(*a, **kw)
-        self.connection = connection
-        self.cursor = cursor
 
-        self.cursor.execute("""
-        create table if not exists tasks (
-            source_url text primary key,
-            spider text,
-            status bool,
-            time timestamp
-        )
-        """)
-        self.connection.commit()
+        with get_cursor() as cursor:
+            cursor.execute("""
+            create table if not exists tasks (
+                source_url text primary key,
+                spider text,
+                status bool,
+                time timestamp
+            )
+            """)
+        get_connection().commit()
 
     async def start(self):
         # This is an absolute hack
@@ -48,13 +47,14 @@ class TrackedCrawlSpider(CrawlSpider):
         self._compile_rules()
 
         # Load urls which were found in previous run, but never completed
-        incompleted = [
-            i[0]
-            for i in self.cursor.execute(
-                "select source_url from tasks where spider = %s and status = %s",
-                (self.crawler.spider.name, False),
-            ).fetchall()
-        ]
+        with get_cursor() as cursor:
+            incompleted = [
+                i[0]
+                for i in cursor.execute(
+                    "select source_url from tasks where spider = %s and status = %s",
+                    (self.crawler.spider.name, False),
+                ).fetchall()
+            ]
 
         # Refer to CrawlSpider._requests_to_follow
         # In short, just map all start urls to rules
@@ -67,11 +67,15 @@ class TrackedCrawlSpider(CrawlSpider):
 
     # Slightly modified callback to track url completion
     def _callback(self, response: Response, **cb_kwargs: Any) -> Any:
-        self.cursor.execute(
-            "update tasks set status=%s where source_url=%s and spider=%s",
-            (True, response.url, self.name),
-        )
-        self.connection.commit()
+        if str(response.status).startswith(
+            "2"
+        ):  # Mark completed, only if response was in 2xx range
+            with get_cursor() as cursor:
+                cursor.execute(
+                    "update tasks set status=%s where source_url=%s and spider=%s",
+                    (True, response.url, self.name),
+                )
+            get_connection().commit()
 
         rule = self._rules[cast("int", response.meta["rule"])]
         return self.parse_with_rules(
@@ -83,18 +87,19 @@ class TrackedCrawlSpider(CrawlSpider):
 
     # Slightly modified build to track url queue
     def _build_request(self, rule_index: int, link: Link) -> Request:
-        existed = self.cursor.execute(
-            """
-            insert into tasks (source_url, spider, status, time)
-            values (%s, %s, %s, %s)
-            on conflict (source_url) do update
-            set status = tasks.status
-            where tasks.status = false
-            returning source_url;
-            """,
-            (link.url, self.name, False, datetime.now()),
-        ).fetchall()
-        self.connection.commit()
+        with get_cursor() as cursor:
+            existed = cursor.execute(
+                """
+                insert into tasks (source_url, spider, status, time)
+                values (%s, %s, %s, %s)
+                on conflict (source_url) do update
+                set status = tasks.status
+                where tasks.status = false
+                returning source_url;
+                """,
+                (link.url, self.name, False, datetime.now()),
+            ).fetchall()
+        get_connection().commit()
 
         # SQL query above returns True result in two cases
         # 1. source_url was not in the database
