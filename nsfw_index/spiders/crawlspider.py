@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Any, cast
+from urllib.parse import urlparse
 
 from scrapy.http import Request, Response
 from scrapy.link import Link
@@ -107,6 +108,11 @@ class TrackedCrawlSpider(CrawlSpider):
 
     # Slightly modified build to track url queue
     def _build_request(self, rule_index: int, link: Link) -> Request:
+        # Found out there is some conditions
+        # In which crawler can build request to not allowed domains
+        if urlparse(link.url).netloc not in self.allowed_domains:
+            return None
+
         with get_cursor() as cursor:
             existed = cursor.execute(
                 """
