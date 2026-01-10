@@ -290,7 +290,7 @@ wheels = [
 
 [[package]]
 name = "nsfw-index"
-version = "2025.1.9"
+version = "2025.1.10"
 source = { virtual = "." }
 dependencies = [
     { name = "psycopg", extra = ["binary"] },
