@@ -1,5 +1,6 @@
 import datetime
 import re
+import json
 from typing import Any, Optional
 from urllib.parse import urlparse
 
@@ -104,7 +105,11 @@ class Video(Item):
 
         item["title"] = schema.get("name")
         item["description"] = schema.get("description")
-        item["thumbnail_url"] = schema.get("thumbnailUrl")
+        item["thumbnail_url"] = (
+            schema.get("thumbnailUrl")[0]
+            if type(schema.get("thumbnailUrl")) is list
+            else schema.get("thumbnailUrl")
+        )
         item["content_url"] = schema.get("contentUrl")
 
         if duration_str := schema.get("duration"):
@@ -123,7 +128,12 @@ class Video(Item):
 
         # Collect all possible interactions
         for stat in stats:
+            # At this point, I think I need to write a whole library for schema.org
+            # Because it's crazy how it's both structured and unstructured at same time! (T~T )
             int_type = stat.get("interactionType", "")
+            if type(stat.get("interactionType")) is dict:
+                int_type = stat.get("interactionType").get("@type")
+
             try:
                 count = int(stat.get("userInteractionCount", 0))
             except (ValueError, TypeError):
