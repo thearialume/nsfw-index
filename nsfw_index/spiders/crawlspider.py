@@ -71,10 +71,30 @@ class TrackedCrawlSpider(CrawlSpider):
             "2"
         ):  # Mark completed, only if response was in 2xx range
             with get_cursor() as cursor:
-                cursor.execute(
-                    "update tasks set status=%s where source_url=%s and spider=%s",
-                    (True, response.url, self.name),
+                # Make sure everything, including redirects was logged as completed
+                urls = (
+                    response.meta.get("redirect_urls")
+                    if response.meta.get("redirect_urls")
+                    else []
                 )
+                urls.append(response.url)
+
+                for url in urls:
+                    cursor.execute(
+                        """
+                        insert into tasks (source_url, spider, status, time)
+                        values (%s, %s, true, %s)
+                        on conflict (source_url) do update
+                        set status = true where tasks.spider = %s
+                        """,
+                        (
+                            url,
+                            self.name,
+                            datetime.now(),
+                            self.name,
+                        ),
+                    )
+
             get_connection().commit()
 
         rule = self._rules[cast("int", response.meta["rule"])]
